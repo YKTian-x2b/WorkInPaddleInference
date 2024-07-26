@@ -1,6 +1,7 @@
 # 最终结果
 
 > https://github.com/PaddlePaddle/Paddle/pull/62838
+> LightVersion: https://github.com/PaddlePaddle/Paddle/pull/63987
 
 - split seq_len to improve mmha perf, with mmhaKernel optimazation and postProcessKernel.
 
