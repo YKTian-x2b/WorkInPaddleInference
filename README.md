@@ -1,5 +1,5 @@
 # WorkInPaddleInference
-我在PaddleInference的一些工作
+我在Paddle Inference的一些工作:
 
 ## LargeDIT模型推理优化
 - [`README_largeDIT`](./LargeDIT/README_largeDIT.md)
@@ -10,9 +10,9 @@
 
 ## Cutlass生成GemmEpilogue算子
 - 从pass到kernel
-- README_GemmEpilogue.md
+- [`README_GemmEpilogue`](./README_GemmEpilogue.md)
 
 ## Triton自定义算子：Norm相关
 - 快速支持算子融合、模型优化
-- README_triton.md
+- [`README_triton`](./README_triton.md)
 
