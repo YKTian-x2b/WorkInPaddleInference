@@ -1,0 +1,3 @@
+/tyk/MMHA/cutlass_learn/build/CMakeFiles/HGEMM.dir
+/tyk/MMHA/cutlass_learn/build/CMakeFiles/edit_cache.dir
+/tyk/MMHA/cutlass_learn/build/CMakeFiles/rebuild_cache.dir

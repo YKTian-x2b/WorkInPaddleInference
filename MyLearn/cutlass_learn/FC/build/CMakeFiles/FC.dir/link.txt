@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/FC.dir/FC_generated_fc_bias_act_generate_example.cu.o -o FC  /usr/local/cuda/lib64/libcudart_static.a -ldl /usr/lib/x86_64-linux-gnu/librt.so -lcublas -lcudnn -lpthread 

@@ -1,0 +1,65 @@
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /tyk/MMHA/cutlass_learn/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_cbd52/fast && /usr/bin/make  -f CMakeFiles/cmTC_cbd52.dir/build.make CMakeFiles/cmTC_cbd52.dir/build
+make[1]: Entering directory '/tyk/MMHA/cutlass_learn/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_cbd52.dir/src.c.o
+/usr/bin/cc -DCMAKE_HAVE_LIBC_PTHREAD  -fPIC  -o CMakeFiles/cmTC_cbd52.dir/src.c.o -c /tyk/MMHA/cutlass_learn/build/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_cbd52
+/tyk/cmake-3.24.4/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cbd52.dir/link.txt --verbose=1
+/usr/bin/cc -fPIC  CMakeFiles/cmTC_cbd52.dir/src.c.o -o cmTC_cbd52 
+/usr/local/bin/ld: CMakeFiles/cmTC_cbd52.dir/src.c.o: in function `main':
+src.c:(.text+0x2f): undefined reference to `pthread_create'
+/usr/local/bin/ld: src.c:(.text+0x3b): undefined reference to `pthread_detach'
+/usr/local/bin/ld: src.c:(.text+0x47): undefined reference to `pthread_cancel'
+/usr/local/bin/ld: src.c:(.text+0x58): undefined reference to `pthread_join'
+/usr/local/bin/ld: src.c:(.text+0x6c): undefined reference to `pthread_atfork'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_cbd52.dir/build.make:98: recipe for target 'cmTC_cbd52' failed
+make[1]: *** [cmTC_cbd52] Error 1
+make[1]: Leaving directory '/tyk/MMHA/cutlass_learn/build/CMakeFiles/CMakeTmp'
+Makefile:127: recipe for target 'cmTC_cbd52/fast' failed
+make: *** [cmTC_cbd52/fast] Error 2
+
+
+Source file was:
+#include <pthread.h>
+
+static void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_cancel(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /tyk/MMHA/cutlass_learn/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_f9bbd/fast && /usr/bin/make  -f CMakeFiles/cmTC_f9bbd.dir/build.make CMakeFiles/cmTC_f9bbd.dir/build
+make[1]: Entering directory '/tyk/MMHA/cutlass_learn/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f9bbd.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create -o CMakeFiles/cmTC_f9bbd.dir/CheckFunctionExists.c.o -c /tyk/cmake-3.24.4/Modules/CheckFunctionExists.c
+Linking C executable cmTC_f9bbd
+/tyk/cmake-3.24.4/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f9bbd.dir/link.txt --verbose=1
+/usr/bin/cc -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create CMakeFiles/cmTC_f9bbd.dir/CheckFunctionExists.c.o -o cmTC_f9bbd  -lpthreads 
+/usr/local/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_f9bbd.dir/build.make:98: recipe for target 'cmTC_f9bbd' failed
+make[1]: *** [cmTC_f9bbd] Error 1
+make[1]: Leaving directory '/tyk/MMHA/cutlass_learn/build/CMakeFiles/CMakeTmp'
+Makefile:127: recipe for target 'cmTC_f9bbd/fast' failed
+make: *** [cmTC_f9bbd/fast] Error 2
+
+
+

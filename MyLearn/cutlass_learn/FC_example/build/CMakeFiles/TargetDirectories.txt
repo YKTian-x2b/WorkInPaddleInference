@@ -1,0 +1,3 @@
+/tyk/MMHA/cutlass_learn/FC_example/build/CMakeFiles/FC.dir
+/tyk/MMHA/cutlass_learn/FC_example/build/CMakeFiles/edit_cache.dir
+/tyk/MMHA/cutlass_learn/FC_example/build/CMakeFiles/rebuild_cache.dir

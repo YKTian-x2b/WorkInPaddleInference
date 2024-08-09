@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/HGEMM.dir/HGEMM_generated_HGEMM.cu.o -o HGEMM  /usr/local/cuda/lib64/libcudart_static.a -ldl /usr/lib/x86_64-linux-gnu/librt.so -lcublas -lcudnn -lpthread 

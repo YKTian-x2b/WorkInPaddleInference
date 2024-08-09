@@ -1,0 +1,120 @@
+logitsDotV_my.cu 是我写的 logitsDotV部分GEMV的实现。
+mmha_my.cu 就是熟悉一下代码
+save里是2月5号版本的备份
+
+
+
+
+
+
+mmha_kernel:
+    0102 - 0182 ：准备索引
+    0186 - 0382 ：q dot k
+    0392 - 0406 ：qk * inv_sqrt_dh
+    0408 - 0468 ：q dot k_cache   then  *inv_sqrt_dh
+    0472 - 0536 ：softmax
+    0538 - 0653 ：softmax(qk) dot v
+    0655 - 结束 ：将结果写回全局内存
+
+
+
+
+
+A100:
+Global Mem: 40GB HBM2   1555GB/s
+Shared Mem: 164KB/SM的上限 （硬件总共 192KB/SM） 
+L2 Cache: 40MB
+寄存器：65536*32bit/SM
+SM数量：108
+
+每个block的寄存器总量：65536
+每个block的共享内存大小：48KB
+每个block的最大小线程数：1024
+每个SM最大线程数：2048
+
+- 每个SM有4个subprocessor 每个subprocessor有16个INT32/FP32，8个FP64，一个TensorCore，8个LSU
+- 3代TensorCore 每个clock能执行256个 FP16/FP32 FMA操作
+- 新的异步copy指令能直接做Global->Shared操作 旁路L1且无需寄存器
+
+- 设备数量： 7
+nvidia-smi -ac 1215,1410 
+
+
+
+其他
+我们要做的任务是 softmax(QK)V
+输入是
+    qkv [batch, 3*heads*head_dim]
+    cahce_kv[2, batch, head, seq, head_dim]
+[split_seq, head, batch] * [256] 的线程簇
+一个block处理 steps_per_block(128) 个seq，[steps_per_block, head_dim]
+
+实际上算子里的形状：
+cache_k [B, num_head, head_dim / x, max_seq_len, x] x是16B内存能容纳的T的个数
+cache_v [B, num_head, max_seq_len, head_dim]
+qkv     [B, 1, num_head+2*kv_num_head, head_dim]
+当前Q 用一个block条带状的读取并写到共享内存。
+当前K 用一个block条带状的读取到寄存器； 然后concatenate在cache的([head_dim/x, curr_seq, x],axis=1) 后面。
+当前V 用一个block条带状的读取到寄存器； 然后条带状写回cache。
+
+cache_K 一个warp的4个线程处理一个key，四个线程连续读取16B数据 也就是 x
+cache_V 一个warp的16个线程处理一个value，一个线程读16B 条带式读取
+
+参数：
+QK_VECS_PER_WARP 表示 读取当前q需要的线程数
+外层k的循环是4 split_seq_len / (BLK_SIZE/THREADS_PER_KEY) 
+
+qkv_base_offset = bi * (params.num_head + 2 * kv_num_head) * Dh + hi * Dh
+
+vo = tid / THREADS_PER_VALUE + start_seq
+vi = (tid % THREADS_PER_VALUE) * V_VEC_SIZE
+
+threads_per_key == 4
+threads_per_val == Dh_max * sizeof(T) / 16
+threads_per_block == 128
+
+Qk_vec == 1/2/4/8个T 由Dh决定；用来加载当前q 当前k 最大16B
+QK_VEC_SIZE == 4
+QK_VECS_IN_16B == 2 
+V_VEC_SIZE = 16 / sizeof(T)
+
+K_vec T*threads_per_key=16B 进而 每个warp在一行读取128B
+V_vec就是16B
+
+历史kv长度为i的时候，src_mask.dims()[3]=i+1, timestep=i， split_seq=timestep/steps_per_block + 1;
+也就是说 timestep表示历史kv长度，split_seq考虑到了当前qkv，给当前qkv也分配了一个block
+act_time_step也表示历史kv长度，也就是说如果历史kv长度是steps_per_block的整数倍，那么last_block的start_seq和end_seq就是一样的。
+
+
+out_shift 决定结果要不要smooth+shift
+out_scale 决定结果要不要量化
+
+优化思路：
+    byteTransformer实现的padding-free算法。
+    gemv实现的抉择
+    分开实现短序列和长序列
+    调整split_seq_len为CTA一次覆盖的长度，就是去掉外层循环。
+    对于短序列，kv可以存在共享内存中被重复使用？
+    如果只是全局内存到共享内存的load 要使用cp.sync
+可能的想法：
+    还有没有共享内存用来暂存几个cache_k cache_v
+
+
+- 一个block条带状的读取当前q/k到寄存器，q条带状写回共享内存，
+  - 这里可以思考一下，让所有线程参与读取快，还是满足ldg.128快。
+- 最后一个线程块把k concatenate在cache_kv的([head_dim/x, curr_seq, x],axis=1) 后面，并做q dot k。
+  - 这里同样的线程还要做mul+add，所以可能让所有线程参与读快一些。
+  - 这里的全局内存写回非常的低效，能不能在计算密集的地方写回这个东西。
+- 
+
+
+
+
+
+flashAttention：CTA里计算相对于该块的注意力输出，然后每个块的输出按正确的归一化因子进行缩放，再相加，得到正确的结果。
+
+
+结果：
+seq=256的时候：1.023ms
+seq=128的时候：
+seq=64的时候：1.126ms

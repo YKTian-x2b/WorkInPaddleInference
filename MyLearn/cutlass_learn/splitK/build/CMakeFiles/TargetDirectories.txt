@@ -1,0 +1,3 @@
+/tyk/MMHA/cutlass_learn/splitK/build/CMakeFiles/splitK.dir
+/tyk/MMHA/cutlass_learn/splitK/build/CMakeFiles/edit_cache.dir
+/tyk/MMHA/cutlass_learn/splitK/build/CMakeFiles/rebuild_cache.dir

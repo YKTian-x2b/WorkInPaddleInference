@@ -1,0 +1,28 @@
+cp.async.ca.shared.global{.level::cache_hint}{.level::prefetch_size}
+ [dst], [src], cp-size{, src-size}{, cache-policy} ;
+
+
+
+
+cp.async.cg.shared.global{.level::cache_hint}{.level::prefetch_size}
+ [dst], [src], 16{, src-size}{, cache-policy} ;
+
+
+cp.async.ca.shared.global{.level::cache_hint}{.level::prefetch_size}
+ [dst], [src], cp-size{, ignore-src}{, cache-policy} ;
+
+
+cp.async.cg.shared.global{.level::cache_hint}{.level::prefetch_size}
+ [dst], [src], 16{, ignore-src}{, cache-policy} ;
+
+
+.level::cache_hint = { .L2::cache_hint }
+
+.level::prefetch_size = { .L2::64B, .L2::128B, .L2::256B }
+cp-size = { 4, 8, 16 }
+
+
+# 异步拷贝指令后需要等待指定的拷贝指令完成数据拷贝。
+cp.async.commit_group + cp.async.wait_group
+# 或
+cp.async.wait_all
