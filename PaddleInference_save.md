@@ -275,6 +275,7 @@ git config --global https.proxy agent.baidu.com:8118
   - https://github.com/NVIDIA/FasterTransformer
   - https://github.com/NVIDIA/TensorRT-LLM
   - OpenDIT OpenSora OneDiff
+  - https://github.com/Dao-AILab/flash-attention
 - mixtral moe
 
 ### C++
