@@ -4,7 +4,6 @@
 
 
 ## LargeDIT模型推理优化
-- TODO
 - https://github.com/PaddlePaddle/PaddleMIX/pull/552
 - LargeDIT 3B 最终耗时：581ms (提速 +61.2%)
 - LargeDIT 7B 最终耗时：926ms (提速 +41.4%)
