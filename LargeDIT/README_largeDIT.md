@@ -4,7 +4,7 @@
 
 
 
-![img](https://rte.weiyun.baidu.com/wiki/attach/image/api/imageDownloadAddress?attachId=b0bcce971d084e429a241bb93fc43f06&docGuid=bu0onWdXwvlMDL)
+![img](../assets/DiT_Infer.png)
 
 ## 7B
 
@@ -196,7 +196,7 @@ samples = self.vae.decode(latents).sample
 
 ## DiTLLaMA2DModel
 
-![img](https://rte.weiyun.baidu.com/wiki/attach/image/api/imageDownloadAddress?attachId=2b3aef9f43fb494ab3beb5a6a86f169f&docGuid=bu0onWdXwvlMDL)
+![img](../assets/DiT_model.png)
 
 ### Input + DiT Block *  N + Output
 
@@ -238,7 +238,7 @@ out = h + gate_mlp.unsqueeze(1) * self.feed_forward(modulate(self.ffn_norm(h), s
 
 ### 主要耗时操作
 
-![img](https://rte.weiyun.baidu.com/wiki/attach/image/api/imageDownloadAddress?attachId=226a1736a5a348d5ab2f32b005c0f7e1&docGuid=bu0onWdXwvlMDL)
+![img](../assets/DiT_nsys.png)
 
 adaLN     wq           wk           wv                      attent   wo                 w1                                     w3                                       w2  
 
@@ -295,7 +295,7 @@ class FeedForward(nn.Layer):
 | scale + residual                                             | broadcast*2                               | 20us       | **0.835%**  | 可以和下一层Fused_AdaLN_Scale_Residual ？ | 组网不好改/暂时不看 |
 | **汇总**                                                     |                                           | **2328us** | **97.243%** | -                                         |                     |
 
-![img](https://rte.weiyun.baidu.com/wiki/attach/image/api/imageDownloadAddress?attachId=49be185f5535400a90f2f81e99f55ce3&docGuid=bu0onWdXwvlMDL)
+![img](../assets/DiT_TransformerBlock.png)
 
 - 耗时1.5%以上的 拉个表 容易看。
 
@@ -370,7 +370,7 @@ dim 4096
 
 - DiT 采用了 Classifier-free guidance（CFG）机制，使用引导系数 guidance_scale 混合条件和无条件噪声作为预测噪声
 
-![img](https://rte.weiyun.baidu.com/wiki/attach/image/api/imageDownloadAddress?attachId=f7207c556bd14fa18f97d8e35d65c4f1&docGuid=bu0onWdXwvlMDL)
+![img](../assets/DiT_CFG.png)
 
 ```python
 if guidance_scale > 1:
@@ -383,7 +383,7 @@ if guidance_scale > 1:
 
 - DDIM样本更新：
 
-![img](https://rte.weiyun.baidu.com/wiki/attach/image/api/imageDownloadAddress?attachId=ce4cf63db6da4fd48dad165b53757a99&docGuid=bu0onWdXwvlMDL)
+![img](../assets/DiT_updateParam.png)
 
 ```python
 # 3. compute predicted original sample from predicted noise also called
