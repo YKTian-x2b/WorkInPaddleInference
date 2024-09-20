@@ -16,8 +16,7 @@ cmake .. -DPY_VERSION=3.8     -DWITH_TESTING=OFF   -DWITH_MKL=ON     -DWITH_GPU=
 # with trt
 cmake .. -DPY_VERSION=3.8         -DWITH_TESTING=OFF     -DWITH_MKL=ON         -DWITH_GPU=ON         -DON_INFER=ON         -DWITH_TENSORRT=ON -DTENSORRT_ROOT=/usr/local/tensorrt/ -DWITH_INFERENCE_API_TEST=ON -DWITH_DISTRIBUTE=ON -DEXP_CUDA_MODULE_LOADING_LAZY=ON -DWITH_INFERENCE_NVTX=OFF
 
-# 新容器
-cmake .. -DPY_VERSION=3.10     -DWITH_TESTING=OFF   -DWITH_MKL=ON     -DWITH_GPU=ON     -DON_INFER=ON     -DWITH_TENSORRT=ON -DTENSORRT_ROOT=/usr/local/tensorrt/ -DWITH_INFERENCE_API_TEST=OFF -DWITH_DISTRIBUTE=OFF -DEXP_CUDA_MODULE_LOADING_LAZY=ON -DWITH_INFERENCE_NVTX=ON -DCMAKE_CXX_FLAGS='-Wno-error=unknown-pragmas' -DWITH_NVTX=ON
+
 
 # 编译paddle
 cd /tyk/Paddle/build && make -j 40
@@ -36,6 +35,28 @@ abc=`hostname -i` && port=8484 && echo $abc:$port && python -m http.server $port
 # icoding: https://icoding.baidu-int.com/workspace/
 curl -s http://baidu-ide.bj.bcebos.com/platform/script/host-script/install-agent.sh | bash -s -- -g 47187e62-b15c-4bce-93b1-f2c910b41cb3 -c ca7710e48b33f4fa201dfc60d53d088e -v 1.8.401.83.1.02 -p 40000
 curl -s http://baidu-ide.bj.bcebos.com/platform/script/host-script/install-agent.sh | bash -s -- -g 1b8514f1-baae-4775-999d-6c7db98a42e0 -c 7184998d1b87a202e9250c3b2211ecdc -v 1.8.401.83.1.02 -p 10240	
+
+
+# 拉镜像
+docker pull registry.baidubce.com/paddlepaddle/paddle:2.6.1-gpu-cuda12.0-cudnn8.9-trt8.6
+# 启动容器
+sudo docker run --gpus all --cap-add=SYS_PTRACE --cap-add=SYS_ADMIN --name flash_decoding -v $PWD:/tyk --network=host -it paddlepaddle/paddle:2.6.1-gpu-cuda12.0-cudnn8.9-trt8.6  /bin/bash
+# 更新cmake
+pip install -U cmake
+whereis cmake	# /usr/local/bin/cmake
+vi ~/.bashrc	# export PATH="/usr/local/bin:$PATH"
+source ~/.bashrc
+# 
+python --version
+#
+pip install wheel
+# 新容器
+export ALL_PROXY='http://127.0.0.1:7890'
+cmake .. -DCMAKE_CUDA_COMPILER=/usr/local/cuda-12.0/bin/nvcc -DCMAKE_CUDA_ARCHITECTURES=86 -DPY_VERSION=3.10     -DWITH_TESTING=OFF   -DWITH_MKL=ON     -DWITH_GPU=ON     -DON_INFER=ON     -DWITH_TENSORRT=ON -DTENSORRT_ROOT=/usr/local/tensorrt/ -DWITH_INFERENCE_API_TEST=OFF -DWITH_DISTRIBUTE=OFF -DEXP_CUDA_MODULE_LOADING_LAZY=ON -DWITH_INFERENCE_NVTX=ON -DCMAKE_CXX_FLAGS='-Wno-error=unknown-pragmas' -DWITH_NVTX=ON -DCUDA_ARCH_NAME=Auto
+# 确保子模块是完整的
+git submodule sync --recursive && git submodule update --init --recursive
+#
+make
 ```
 
 
@@ -65,7 +86,8 @@ docker save -o  文件名   镜像名
 # 加载镜像
 # docker load -i tyk-paddle-imagefile.tar
 docker load -i  文件名   镜像名
-
+# 删除镜像
+docker rmi
 
 #### 系统命令
 wget http://10.78.119.13:8088/cuda-11.6.tar		# cuda11.6 软链接到usr/bin/cuda
